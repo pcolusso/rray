@@ -49,12 +49,12 @@ fn main() -> Result<()> {
             Box::new(Sphere {
                 centre: Vector3::new(1.0, 0.0, -1.0),
                 radius: 0.5,
-                material: Arc::new(Metal { albedo: Vector3::new(0.8, 0.6, 0.2) })
+                material: Arc::new(Metal { albedo: Vector3::new(0.8, 0.6, 0.2), fuzz: 0.3 })
             }),
             Box::new(Sphere {
                 centre: Vector3::new(-1.0, 0.0, -1.0),
                 radius: 0.5,
-                material: Arc::new(Metal { albedo: Vector3::new(0.8, 0.8, 0.8) })
+                material: Arc::new(Metal { albedo: Vector3::new(0.8, 0.8, 0.8), fuzz: 0.8 })
             })
         )
     };

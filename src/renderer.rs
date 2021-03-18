@@ -27,11 +27,8 @@ pub fn random_in_unit_sphere(rng: &mut ThreadRng) -> Vector3<f32> {
 pub fn colour<T: Hitable>(ray: &Ray, world: &T, rng: &mut ThreadRng, depth: u32) -> Vector3<f32> {
     if let Some(rec) = world.hit(ray, 0.001, f32::MAX) {
         if depth < MAX_DEPTH {
-            if let Some((new_ray, atten)) = rec.material.scatter(ray, &rec, rng) {
-                return atten.component_mul(&colour(&new_ray, world, rng, depth + 1));
-            } else {
-                Vector3::new(0.0, 0.0, 0.0)
-            }
+            let scattered = rec.material.scatter(&ray, &rec, rng);
+            scattered.atten.component_mul(&colour(&scattered.ray, world, rng, depth + 1))
         } else {
             Vector3::new(0.0, 0.0, 0.0)
         }
