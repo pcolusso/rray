@@ -10,7 +10,7 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn get_ray(&self, rng: &mut ThreadRng, u: f32, v: f32) -> Ray {
+    pub fn get_ray(&self, _: &mut ThreadRng, u: f32, v: f32) -> Ray {
         Ray {
             origin: self.origin,
             direction: self.lower_left + u * self.horizontal + v * self.vertical - self.origin

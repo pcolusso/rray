@@ -11,10 +11,6 @@ const NUM_SAMPLES: u32 = 64;
 const NUM_SAMPLES: u32 = 256;
 const MAX_DEPTH: u32 = 16;
 
-pub fn vec_length(vec: Vector3<f32>) -> f32 {
-    (vec.x * vec.x + vec.y * vec.y + vec.z * vec.z).sqrt()
-}
-
 pub fn vec_squared_length(vec: Vector3<f32>) -> f32 {
     vec.x * vec.x + vec.y * vec.y + vec.z * vec.z
 }
@@ -31,7 +27,7 @@ pub fn random_in_unit_sphere(rng: &mut ThreadRng) -> Vector3<f32> {
 pub fn colour<T: Hitable>(ray: &Ray, world: &T, rng: &mut ThreadRng, depth: u32) -> Vector3<f32> {
     if let Some(rec) = world.hit(ray, 0.001, f32::MAX) {
         if depth < MAX_DEPTH {
-            if let Some((new_ray, atten)) = rec.m.scatter(ray, &rec, rng) {
+            if let Some((new_ray, atten)) = rec.material.scatter(ray, &rec, rng) {
                 return atten.component_mul(&colour(&new_ray, world, rng, depth + 1));
             } else {
                 Vector3::new(0.0, 0.0, 0.0)

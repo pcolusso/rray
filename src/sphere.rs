@@ -10,21 +10,6 @@ pub struct Sphere {
     pub material: Arc<dyn Material + Sync + Send>
 }
 
-impl Sphere {
-    pub fn intersect(&self, ray: &Ray) -> f32 {
-        let oc = ray.origin - self.centre;
-        let a = ray.direction.dot(&ray.direction);
-        let b = 2.0 * oc.dot(&ray.direction);
-        let c = oc.dot(&oc) - self.radius * self.radius;
-        let d = b * b - 4.0 * a * c;
-        if d < 0.0 {
-            -1.0
-        } else {
-            (-b - d.sqrt()) / (2.0 * a)
-        }
-    }
-}
-
 impl Hitable for Sphere {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let oc = ray.origin - self.centre;
@@ -38,10 +23,10 @@ impl Hitable for Sphere {
                 let hit_point = ray.point_at_parameter(temp);
                 let normal = (1.0 / self.radius) * (hit_point - self.centre);
                 return Some(HitRecord{
-                    t: temp,
-                    p: hit_point,
-                    n: normal,
-                    m: self.material.clone()
+                    time: temp,
+                    position: hit_point,
+                    normal,
+                    material: self.material.clone() // Here's where that arc comes in handy. The material will be put on the heap, and this will just increase the refcount.
                 })
             }
             let temp = (-b + (b * b - a * c).sqrt()) / a;
@@ -49,10 +34,10 @@ impl Hitable for Sphere {
                 let hit_point = ray.point_at_parameter(temp);
                 let normal = (1.0 / self.radius) * (hit_point - self.centre);
                 return Some(HitRecord{
-                    t: temp,
-                    p: hit_point,
-                    n: normal,
-                    m: self.material.clone()
+                    time: temp,
+                    position: hit_point,
+                    normal,
+                    material: self.material.clone()
                 })
             }
         }

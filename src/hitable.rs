@@ -8,10 +8,10 @@ pub trait Hitable {
 }
 
 pub struct HitRecord {
-    pub t: f32,
-    pub p: Vector3<f32>,
-    pub n: Vector3<f32>,
-    pub m: Arc<dyn Material + Sync>,
+    pub time: f32,
+    pub position: Vector3<f32>,
+    pub normal: Vector3<f32>,
+    pub material: Arc<dyn Material + Sync>,
 }
 
 pub struct HitableList {
@@ -26,7 +26,7 @@ impl Hitable for HitableList {
         for h in self.list.iter() {
             if let Some(rec)= h.hit(ray, t_min, closest_so_far) {
                 hit = true;
-                closest_so_far = rec.t;
+                closest_so_far = rec.time;
                 temp_rec = Some(rec);
             }
         }
