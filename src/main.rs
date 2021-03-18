@@ -7,7 +7,7 @@ mod camera;
 mod renderer;
 mod material;
 
-use material::{Lambertian, Metal};
+use material::{Lambertian, Metal, Dielectric};
 use minifb::{Window, WindowOptions};
 use anyhow::Result;
 use nalgebra::Vector3;
@@ -55,6 +55,11 @@ fn main() -> Result<()> {
                 centre: Vector3::new(-1.0, 0.0, -1.0),
                 radius: 0.5,
                 material: Arc::new(Metal { albedo: Vector3::new(0.8, 0.8, 0.8), fuzz: 0.8 })
+            }),
+            Box::new(Sphere {
+                centre: Vector3::new(0.2, -0.07, -0.2),
+                radius: 0.05,
+                material: Arc::new(Dielectric { refractive_index: 1.5 })
             })
         )
     };

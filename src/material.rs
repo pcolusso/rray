@@ -1,6 +1,6 @@
 use crate::ray::Ray;
 use crate::hitable::HitRecord;
-use crate::renderer::random_in_unit_sphere; //TODO: Move?
+use crate::renderer::*; //TODO: Move?
 use nalgebra::{Unit, Vector3};
 use rand::prelude::*;
 
@@ -43,4 +43,50 @@ impl Material for Metal {
 
 pub fn reflect(v: Vector3<f32>, n: Vector3<f32>) -> Vector3<f32> {
     v - 2.0 * v.dot(&n) * n
+}
+
+fn refract(v: Vector3<f32>, n: Vector3<f32>, ni_over_nt: f32) -> Option<Vector3<f32>> {
+    let uv = v.normalize();
+    let dt = uv.dot(&n);
+    let d  = 1.0 - ni_over_nt * ni_over_nt * (1.0 - dt * dt);
+    if d > 0.0 {
+        Some(ni_over_nt * (uv - n * dt) - n * d.sqrt())
+    } else {
+        None
+    }
+}
+
+pub struct Dielectric {
+    pub refractive_index: f32
+}
+
+impl Material for Dielectric {
+    fn scatter(self: &Self, ray: &Ray, hit_record: &HitRecord, rng: &mut ThreadRng) -> Scatter {
+        let outward_normal: Vector3<f32>;
+        let ni_over_nt: f32;
+        let cosine: f32;
+        let reflected = reflect(ray.direction, hit_record.normal);
+        let atten = Vector3::new(1.0, 1.0, 0.0);
+
+        if ray.direction.dot(&hit_record.normal) > 0.0 {
+            outward_normal = -hit_record.normal;
+            ni_over_nt = self.refractive_index;
+            cosine = self.refractive_index * ray.direction.dot(&hit_record.normal) / vec_length(&ray.direction);
+        } else {
+            outward_normal = hit_record.normal;
+            ni_over_nt = 1.0 / self.refractive_index;
+            cosine = -ray.direction.dot(&hit_record.normal) / vec_length(&ray.direction);
+        }
+
+        if let Some(refracted) = refract(ray.direction, outward_normal, ni_over_nt) {
+            Scatter { ray: Ray { origin: hit_record.position, direction: refracted }, atten: atten }
+        } else {
+            if rng.gen::<f32>() < 0.5 {
+                Scatter { ray: Ray { origin: hit_record.position, direction: reflected }, atten: atten }
+            } else {
+                Scatter { ray: Ray { origin: hit_record.position, direction: reflected }, atten: atten }
+            }
+            
+        }
+    }
 }

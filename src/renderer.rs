@@ -11,15 +11,19 @@ const NUM_SAMPLES: u32 = 64;
 const NUM_SAMPLES: u32 = 256;
 const MAX_DEPTH: u32 = 16;
 
-pub fn vec_squared_length(vec: Vector3<f32>) -> f32 {
+pub fn vec_squared_length(vec: &Vector3<f32>) -> f32 {
     vec.x * vec.x + vec.y * vec.y + vec.z * vec.z
+}
+
+pub fn vec_length(vec: &Vector3<f32>) -> f32 {
+    vec_squared_length(vec).sqrt()
 }
 
 pub fn random_in_unit_sphere(rng: &mut ThreadRng) -> Vector3<f32> {
     let mut v;
     loop {
         v = 2.0 * Vector3::new(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>()) - Vector3::new(1.0, 1.0, 1.0);
-        if !(vec_squared_length(v) >= 1.0) { break; }
+        if !(vec_squared_length(&v) >= 1.0) { break; }
     }
     v
 }
