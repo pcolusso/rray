@@ -5,6 +5,9 @@ use nalgebra::Vector3;
 use rand::prelude::*;
 use rayon::prelude::*;
 
+#[cfg(debug_assertions)]
+const NUM_SAMPLES: u32 = 64;
+#[cfg(not(debug_assertions))]
 const NUM_SAMPLES: u32 = 256;
 const MAX_DEPTH: u32 = 16;
 

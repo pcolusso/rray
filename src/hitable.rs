@@ -1,6 +1,7 @@
 use crate::ray::Ray;
 use crate::material::Material;
 use nalgebra::{Vector3};
+use std::sync::Arc;
 
 pub trait Hitable {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
@@ -10,7 +11,7 @@ pub struct HitRecord {
     pub t: f32,
     pub p: Vector3<f32>,
     pub n: Vector3<f32>,
-    pub m: Box<dyn Material>,
+    pub m: Arc<dyn Material + Sync>,
 }
 
 pub struct HitableList {

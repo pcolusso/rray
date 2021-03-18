@@ -7,11 +7,12 @@ mod camera;
 mod renderer;
 mod material;
 
-use material::Lambertian;
+use material::{Lambertian, Metal};
 use minifb::{Window, WindowOptions};
 use anyhow::Result;
 use nalgebra::Vector3;
 use std::time::{Duration, Instant};
+use std::sync::Arc;
 use std::env;
 
 use crate::sphere::Sphere;
@@ -36,14 +37,24 @@ fn main() -> Result<()> {
     let world = HitableList{
         list: vec!(
             Box::new(Sphere {
-                centre: Vector3::new(0.0, 0.0, -1.0),
-                radius: 0.5,
-                material: Box::new( Lambertian { albedo: Vector3::new(0.8, 0.3, 0.3) })
-            }),
-            Box::new(Sphere {
                 centre: Vector3::new(0.0, -100.5, -1.0),
                 radius: 100.0,
-                material: Box::new(Lambertian { albedo: Vector3::new(0.8, 0.8, 0.0) })
+                material: Arc::new(Lambertian { albedo: Vector3::new(0.8, 0.8, 0.0) })
+            }),
+            Box::new(Sphere {
+                centre: Vector3::new(0.0, 0.0, -1.0),
+                radius: 0.5,
+                material: Arc::new(Lambertian { albedo: Vector3::new(0.8, 0.3, 0.3) })
+            }),
+            Box::new(Sphere {
+                centre: Vector3::new(1.0, 0.0, -1.0),
+                radius: 0.5,
+                material: Arc::new(Metal { albedo: Vector3::new(0.8, 0.6, 0.2) })
+            }),
+            Box::new(Sphere {
+                centre: Vector3::new(-1.0, 0.0, -1.0),
+                radius: 0.5,
+                material: Arc::new(Metal { albedo: Vector3::new(0.8, 0.8, 0.8) })
             })
         )
     };

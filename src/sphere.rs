@@ -1,4 +1,5 @@
 use nalgebra::{Vector3};
+use std::sync::Arc;
 use crate::ray::Ray;
 use crate::hitable::{Hitable, HitRecord};
 use crate::material::Material;
@@ -6,7 +7,7 @@ use crate::material::Material;
 pub struct Sphere {
     pub centre: Vector3<f32>,
     pub radius: f32,
-    pub material: Box<dyn Material>
+    pub material: Arc<dyn Material + Sync + Send>
 }
 
 impl Sphere {
@@ -40,7 +41,7 @@ impl Hitable for Sphere {
                     t: temp,
                     p: hit_point,
                     n: normal,
-                    m: Box::new(self.material.clone())
+                    m: self.material.clone()
                 })
             }
             let temp = (-b + (b * b - a * c).sqrt()) / a;
@@ -51,7 +52,7 @@ impl Hitable for Sphere {
                     t: temp,
                     p: hit_point,
                     n: normal,
-                    m: Box::new(self.material.clone())
+                    m: self.material.clone()
                 })
             }
         }
