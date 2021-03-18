@@ -1,11 +1,12 @@
 use nalgebra::{Vector3};
 use crate::ray::Ray;
 use crate::hitable::{Hitable, HitRecord};
-use crate::material::Lambertian;
+use crate::material::Material;
 
 pub struct Sphere {
     pub centre: Vector3<f32>,
-    pub radius: f32
+    pub radius: f32,
+    pub material: Box<dyn Material>
 }
 
 impl Sphere {
@@ -39,7 +40,7 @@ impl Hitable for Sphere {
                     t: temp,
                     p: hit_point,
                     n: normal,
-                    m: Box::new(Lambertian { albedo: Vector3::new(1.0, 1.0, 1.0) })
+                    m: Box::new(self.material.clone())
                 })
             }
             let temp = (-b + (b * b - a * c).sqrt()) / a;
@@ -50,7 +51,7 @@ impl Hitable for Sphere {
                     t: temp,
                     p: hit_point,
                     n: normal,
-                    m: Box::new(Lambertian { albedo: Vector3::new(1.0, 1.0, 1.0) })
+                    m: Box::new(self.material.clone())
                 })
             }
         }

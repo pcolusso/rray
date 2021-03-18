@@ -1,7 +1,5 @@
 use crate::ray::Ray;
-use crate::sphere::Sphere;
 use crate::material::Material;
-use std::sync::Arc;
 use nalgebra::{Vector3};
 
 pub trait Hitable {
@@ -12,11 +10,7 @@ pub struct HitRecord {
     pub t: f32,
     pub p: Vector3<f32>,
     pub n: Vector3<f32>,
-    pub m: Box<Material>,
-}
-
-pub enum HitableObject {
-    Sphere(Sphere)
+    pub m: Box<dyn Material>,
 }
 
 pub struct HitableList {

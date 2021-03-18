@@ -5,7 +5,7 @@ use nalgebra::Vector3;
 use rand::prelude::*;
 use rayon::prelude::*;
 
-const NUM_SAMPLES: u32 = 64;
+const NUM_SAMPLES: u32 = 256;
 const MAX_DEPTH: u32 = 16;
 
 pub fn vec_length(vec: Vector3<f32>) -> f32 {
@@ -16,9 +16,8 @@ pub fn vec_squared_length(vec: Vector3<f32>) -> f32 {
     vec.x * vec.x + vec.y * vec.y + vec.z * vec.z
 }
 
-pub fn random_in_unit_sphere() -> Vector3<f32> {
+pub fn random_in_unit_sphere(rng: &mut ThreadRng) -> Vector3<f32> {
     let mut v;
-    let mut rng = rand::thread_rng();
     loop {
         v = 2.0 * Vector3::new(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>()) - Vector3::new(1.0, 1.0, 1.0);
         if !(vec_squared_length(v) >= 1.0) { break; }
@@ -29,8 +28,11 @@ pub fn random_in_unit_sphere() -> Vector3<f32> {
 pub fn colour<T: Hitable>(ray: &Ray, world: &T, rng: &mut ThreadRng, depth: u32) -> Vector3<f32> {
     if let Some(rec) = world.hit(ray, 0.001, f32::MAX) {
         if depth < MAX_DEPTH {
-            let target = rec.p + rec.n + random_in_unit_sphere();
-            0.5 * colour(&Ray { direction: rec.p, origin: target - rec.p }, world, rng, depth + 1)
+            if let Some((new_ray, atten)) = rec.m.scatter(ray, &rec, rng) {
+                return atten.component_mul(&colour(&new_ray, world, rng, depth + 1));
+            } else {
+                Vector3::new(0.0, 0.0, 0.0)
+            }
         } else {
             Vector3::new(0.0, 0.0, 0.0)
         }
