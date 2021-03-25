@@ -451,6 +451,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "nalgebra-glm"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "96545c10df0370595ce84c402132b21c5186cdcdbda27f4a01805201ac447193"
+dependencies = [
+ "approx",
+ "nalgebra",
+ "num-traits",
+ "simba",
+]
+
+[[package]]
 name = "nix"
 version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -733,7 +745,7 @@ dependencies = [
  "anyhow",
  "log",
  "minifb",
- "nalgebra",
+ "nalgebra-glm",
  "pretty_env_logger",
  "rand",
  "rayon",

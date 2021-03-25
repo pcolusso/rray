@@ -1,4 +1,5 @@
 #[macro_use] extern crate log;
+extern crate nalgebra_glm as glm;
 
 mod ray;
 mod sphere;
@@ -10,7 +11,7 @@ mod material;
 use material::{Lambertian, Metal, Dielectric};
 use minifb::{Window, WindowOptions};
 use anyhow::Result;
-use nalgebra::Vector3;
+use glm::*;
 use std::time::{Duration, Instant};
 use std::sync::Arc;
 use std::env;
@@ -27,37 +28,37 @@ fn main() -> Result<()> {
     pretty_env_logger::init();
     
     let camera = Camera {
-        lower_left: Vector3::new(-2.0, -1.0, -1.0),
-        horizontal: Vector3::new(4.0, 0.0, 0.0),
-        vertical: Vector3::new(0.0, 2.0, 0.0),
-        origin: Vector3::new(0.0, 0.0, 0.0),
+        lower_left: vec3(-2.0, -1.0, -1.0),
+        horizontal: vec3(4.0, 0.0, 0.0),
+        vertical: vec3(0.0, 2.0, 0.0),
+        origin: vec3(0.0, 0.0, 0.0),
     };
 
     
     let world = HitableList{
         list: vec!(
             Box::new(Sphere {
-                centre: Vector3::new(0.0, -100.5, -1.0),
+                centre: vec3(0.0, -100.5, -1.0),
                 radius: 100.0,
-                material: Arc::new(Lambertian { albedo: Vector3::new(0.8, 0.8, 0.0) })
+                material: Arc::new(Lambertian { albedo: vec3(0.8, 0.8, 0.0) })
             }),
             Box::new(Sphere {
-                centre: Vector3::new(0.0, 0.0, -1.0),
+                centre: vec3(0.0, 0.0, -1.0),
                 radius: 0.5,
-                material: Arc::new(Lambertian { albedo: Vector3::new(0.8, 0.3, 0.3) })
+                material: Arc::new(Lambertian { albedo: vec3(0.8, 0.3, 0.3) })
             }),
             Box::new(Sphere {
-                centre: Vector3::new(1.0, 0.0, -1.0),
+                centre: vec3(1.0, 0.0, -1.0),
                 radius: 0.5,
-                material: Arc::new(Metal { albedo: Vector3::new(0.8, 0.6, 0.2), fuzz: 0.3 })
+                material: Arc::new(Metal { albedo: vec3(0.8, 0.6, 0.2), fuzz: 0.3 })
             }),
             Box::new(Sphere {
-                centre: Vector3::new(-1.0, 0.0, -1.0),
+                centre: vec3(-1.0, 0.0, -1.0),
                 radius: 0.5,
-                material: Arc::new(Metal { albedo: Vector3::new(0.8, 0.8, 0.8), fuzz: 0.8 })
+                material: Arc::new(Metal { albedo: vec3(0.8, 0.8, 0.8), fuzz: 0.8 })
             }),
             Box::new(Sphere {
-                centre: Vector3::new(0.2, -0.07, -0.2),
+                centre: vec3(0.2, -0.07, -0.2),
                 radius: 0.05,
                 material: Arc::new(Dielectric { refractive_index: 1.5 })
             })

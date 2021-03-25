@@ -1,12 +1,12 @@
 use crate::ray::Ray;
 use crate::hitable::HitRecord;
 use crate::renderer::*; //TODO: Move?
-use nalgebra::{Unit, Vector3};
+use glm::{Vec3, vec3};
 use rand::prelude::*;
 
 pub struct Scatter {
     pub ray: Ray,
-    pub atten: Vector3<f32>
+    pub atten: Vec3
 }
 
 
@@ -16,7 +16,7 @@ pub trait Material {
 
 // Diffuse
 pub struct Lambertian {
-    pub albedo: Vector3<f32>
+    pub albedo: Vec3
 }
 
 impl Material for Lambertian {
@@ -28,7 +28,7 @@ impl Material for Lambertian {
 }
 
 pub struct Metal {
-    pub albedo: Vector3<f32>,
+    pub albedo: Vec3,
     pub fuzz: f32
 }
 
@@ -41,16 +41,16 @@ impl Material for Metal {
     }
 }
 
-pub fn reflect(v: Vector3<f32>, n: Vector3<f32>) -> Vector3<f32> {
+pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
     v - 2.0 * v.dot(&n) * n
 }
 
-fn refract(v: Vector3<f32>, n: Vector3<f32>, ni_over_nt: f32) -> Option<Vector3<f32>> {
+fn refract(v: Vec3, n: Vec3, etai_over_etat: f32) -> Option<Vec3> {
     let uv = v.normalize();
-    let dt = uv.dot(&n);
-    let d  = 1.0 - ni_over_nt * ni_over_nt * (1.0 - dt * dt);
+    let dt = glm::dot(&uv, &n);
+    let d  = 1.0 - etai_over_etat * etai_over_etat * (1.0 - dt * dt);
     if d > 0.0 {
-        Some(ni_over_nt * (uv - n * dt) - n * d.sqrt())
+        Some(etai_over_etat * (uv - n * dt) - n * d.sqrt())
     } else {
         None
     }
@@ -62,11 +62,11 @@ pub struct Dielectric {
 
 impl Material for Dielectric {
     fn scatter(self: &Self, ray: &Ray, hit_record: &HitRecord, rng: &mut ThreadRng) -> Scatter {
-        let outward_normal: Vector3<f32>;
+        let outward_normal: Vec3;
         let ni_over_nt: f32;
         let cosine: f32;
         let reflected = reflect(ray.direction, hit_record.normal);
-        let atten = Vector3::new(1.0, 1.0, 0.0);
+        let atten = vec3(1.0, 1.0, 0.0);
 
         if ray.direction.dot(&hit_record.normal) > 0.0 {
             outward_normal = -hit_record.normal;

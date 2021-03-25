@@ -1,6 +1,7 @@
 use crate::ray::Ray;
 use crate::material::Material;
-use nalgebra::{Vector3};
+
+use glm::{vec3, Vec3};
 use std::sync::Arc;
 
 pub trait Hitable {
@@ -9,8 +10,8 @@ pub trait Hitable {
 
 pub struct HitRecord {
     pub time: f32,
-    pub position: Vector3<f32>,
-    pub normal: Vector3<f32>,
+    pub position: Vec3,
+    pub normal: Vec3,
     pub material: Arc<dyn Material + Sync>,
 }
 

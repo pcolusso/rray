@@ -1,7 +1,7 @@
 use crate::camera::Camera;
 use crate::ray::Ray;
 use crate::hitable::{Hitable, HitableList};
-use nalgebra::Vector3;
+use glm::{Vec3, vec3};
 use rand::prelude::*;
 use rayon::prelude::*;
 
@@ -11,35 +11,35 @@ const NUM_SAMPLES: u32 = 64;
 const NUM_SAMPLES: u32 = 256;
 const MAX_DEPTH: u32 = 16;
 
-pub fn vec_squared_length(vec: &Vector3<f32>) -> f32 {
+pub fn vec_squared_length(vec: &Vec3) -> f32 {
     vec.x * vec.x + vec.y * vec.y + vec.z * vec.z
 }
 
-pub fn vec_length(vec: &Vector3<f32>) -> f32 {
+pub fn vec_length(vec: &Vec3) -> f32 {
     vec_squared_length(vec).sqrt()
 }
 
-pub fn random_in_unit_sphere(rng: &mut ThreadRng) -> Vector3<f32> {
+pub fn random_in_unit_sphere(rng: &mut ThreadRng) -> Vec3 {
     let mut v;
     loop {
-        v = 2.0 * Vector3::new(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>()) - Vector3::new(1.0, 1.0, 1.0);
+        v = 2.0 * vec3(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>()) - vec3(1.0, 1.0, 1.0);
         if !(vec_squared_length(&v) >= 1.0) { break; }
     }
     v
 }
 
-pub fn colour<T: Hitable>(ray: &Ray, world: &T, rng: &mut ThreadRng, depth: u32) -> Vector3<f32> {
+pub fn colour<T: Hitable>(ray: &Ray, world: &T, rng: &mut ThreadRng, depth: u32) -> Vec3 {
     if let Some(rec) = world.hit(ray, 0.001, f32::MAX) {
         if depth < MAX_DEPTH {
             let scattered = rec.material.scatter(&ray, &rec, rng);
             scattered.atten.component_mul(&colour(&scattered.ray, world, rng, depth + 1))
         } else {
-            Vector3::new(0.0, 0.0, 0.0)
+            vec3(0.0, 0.0, 0.0)
         }
     } else {
         let direction = ray.direction.normalize();
         let time = 0.5 * (direction.y + 1.0);
-        (1.0 - time) * Vector3::new(1.0, 1.0, 1.0) + time * Vector3::new(0.5, 0.7, 1.0)
+        (1.0 - time) * vec3(1.0, 1.0, 1.0) + time * vec3(0.5, 0.7, 1.0)
     }
 }
 
@@ -53,7 +53,7 @@ pub fn render(width: usize, height: usize, camera: Camera, world: HitableList) -
         .map_init(
             || thread_rng(),
             | mut rng, screen_pos | {
-                let mut c = Vector3::new(0.0, 0.0, 0.0);
+                let mut c = vec3(0.0, 0.0, 0.0);
                 let i = height - 1 - screen_pos / width;
                 let j = screen_pos % width;
                 for _ in 0..NUM_SAMPLES {

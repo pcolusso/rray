@@ -1,11 +1,11 @@
-use nalgebra::{Vector3};
+use glm::Vec3;
 use std::sync::Arc;
 use crate::ray::Ray;
 use crate::hitable::{Hitable, HitRecord};
 use crate::material::Material;
 
 pub struct Sphere {
-    pub centre: Vector3<f32>,
+    pub centre: Vec3,
     pub radius: f32,
     pub material: Arc<dyn Material + Sync + Send>
 }

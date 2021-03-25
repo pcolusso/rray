@@ -1,12 +1,12 @@
-use nalgebra::Vector3;
+use glm::Vec3;
 use rand::prelude::*;
 use crate::ray::Ray;
 
 pub struct Camera {
-    pub lower_left: Vector3<f32>,
-    pub horizontal: Vector3<f32>,
-    pub vertical: Vector3<f32>,
-    pub origin: Vector3<f32>
+    pub lower_left: Vec3,
+    pub horizontal: Vec3,
+    pub vertical: Vec3,
+    pub origin: Vec3
 }
 
 impl Camera {
