@@ -14,3 +14,11 @@ nalgebra-glm = "0.11"
 pretty_env_logger = "0.4.0"
 rayon = "1.5.0"
 rand = "0.8.3"
+
+# Set the default for dependencies.
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.dev]
+# Turn on a small amount of optimisation in development mode.
+opt-level = 1
