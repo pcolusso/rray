@@ -22,23 +22,19 @@ impl Hitable for Sphere {
             if temp < t_max && temp > t_min {
                 let hit_point = ray.point_at_parameter(temp);
                 let normal = (1.0 / self.radius) * (hit_point - self.centre);
-                return Some(HitRecord{
-                    time: temp,
-                    position: hit_point,
-                    normal,
-                    material: self.material.clone() // Here's where that arc comes in handy. The material will be put on the heap, and this will just increase the refcount.
-                })
+                let outward_normal = (hit_point - self.centre) / self.radius;
+                let mut rec = HitRecord::new(temp, hit_point, normal, self.material.clone());
+                rec.set_face_normal(ray, &outward_normal);
+                return Some(rec)
             }
             let temp = (-b + (b * b - a * c).sqrt()) / a;
             if temp < t_max && temp > t_min {
                 let hit_point = ray.point_at_parameter(temp);
                 let normal = (1.0 / self.radius) * (hit_point - self.centre);
-                return Some(HitRecord{
-                    time: temp,
-                    position: hit_point,
-                    normal,
-                    material: self.material.clone()
-                })
+                let mut rec = HitRecord::new(temp, hit_point, normal, self.material.clone());
+                let outward_normal = (hit_point - self.centre) / self.radius;
+                rec.set_face_normal(ray, &outward_normal);
+                return Some(rec)
             }
         }
         None

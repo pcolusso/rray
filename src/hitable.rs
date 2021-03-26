@@ -13,6 +13,19 @@ pub struct HitRecord {
     pub position: Vec3,
     pub normal: Vec3,
     pub material: Arc<dyn Material + Sync>,
+    pub front_face: bool
+}
+
+impl HitRecord {
+    pub fn new(time: f32, position: Vec3, normal: Vec3, material: Arc<dyn Material + Sync>) -> Self {
+        let front_face = false;
+        Self { time, position, normal, material, front_face }
+    }
+
+    pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: &Vec3) {
+        self.front_face = glm::dot(&ray.direction, outward_normal) < 0.0;
+        self.normal = if self.front_face { outward_normal.clone() } else { -outward_normal };
+    }
 }
 
 pub struct HitableList {
@@ -37,4 +50,6 @@ impl Hitable for HitableList {
             None
         }
     }
+
+    
 }

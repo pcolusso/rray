@@ -45,15 +45,12 @@ pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
     v - 2.0 * v.dot(&n) * n
 }
 
-fn refract(v: Vec3, n: Vec3, etai_over_etat: f32) -> Option<Vec3> {
-    let uv = v.normalize();
-    let dt = glm::dot(&uv, &n);
-    let d  = 1.0 - etai_over_etat * etai_over_etat * (1.0 - dt * dt);
-    if d > 0.0 {
-        Some(etai_over_etat * (uv - n * dt) - n * d.sqrt())
-    } else {
-        None
-    }
+fn refract(uv: Vec3, n: Vec3, etai_over_etat: f32) -> Vec3 {
+    let x = glm::dot(&-uv, &n);
+    let cos_theta = if x < 1.0 { x } else { 1.0 };
+    let r_out_perp = etai_over_etat * (uv - cos_theta * n);
+    let r_out_para = -(1.0 - glm::length2(&r_out_perp).abs()).sqrt() * n;
+    r_out_perp + r_out_para
 }
 
 pub struct Dielectric {
@@ -62,31 +59,10 @@ pub struct Dielectric {
 
 impl Material for Dielectric {
     fn scatter(self: &Self, ray: &Ray, hit_record: &HitRecord, rng: &mut ThreadRng) -> Scatter {
-        let outward_normal: Vec3;
-        let ni_over_nt: f32;
-        let cosine: f32;
-        let reflected = reflect(ray.direction, hit_record.normal);
-        let atten = vec3(1.0, 1.0, 0.0);
-
-        if ray.direction.dot(&hit_record.normal) > 0.0 {
-            outward_normal = -hit_record.normal;
-            ni_over_nt = self.refractive_index;
-            cosine = self.refractive_index * ray.direction.dot(&hit_record.normal) / vec_length(&ray.direction);
-        } else {
-            outward_normal = hit_record.normal;
-            ni_over_nt = 1.0 / self.refractive_index;
-            cosine = -ray.direction.dot(&hit_record.normal) / vec_length(&ray.direction);
-        }
-
-        if let Some(refracted) = refract(ray.direction, outward_normal, ni_over_nt) {
-            Scatter { ray: Ray { origin: hit_record.position, direction: refracted }, atten: atten }
-        } else {
-            if rng.gen::<f32>() < 0.5 {
-                Scatter { ray: Ray { origin: hit_record.position, direction: reflected }, atten: atten }
-            } else {
-                Scatter { ray: Ray { origin: hit_record.position, direction: reflected }, atten: atten }
-            }
-            
-        }
+        let attenuation = vec3(1.0, 1.0, 1.0);
+        let refraction_ratio = if hit_record.front_face { 1.0 / self.refractive_index } else {  self.refractive_index};
+        let unit_direction = ray.direction.normalize();
+        let refracted = refract(unit_direction, hit_record.normal, refraction_ratio);
+        Scatter { ray: Ray { origin: hit_record.position, direction: refracted }, atten: attenuation }
     }
 }
