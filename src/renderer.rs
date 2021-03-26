@@ -16,10 +16,6 @@ pub fn vec_squared_length(vec: &Vec3) -> f32 {
     vec.x * vec.x + vec.y * vec.y + vec.z * vec.z
 }
 
-pub fn vec_length(vec: &Vec3) -> f32 {
-    vec_squared_length(vec).sqrt()
-}
-
 pub fn random_in_unit_sphere(rng: &mut ThreadRng) -> Vec3 {
     let mut v;
     loop {

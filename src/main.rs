@@ -10,7 +10,7 @@ mod renderer;
 mod sphere;
 
 use anyhow::Result;
-use glm::*;
+use glm::vec3;
 use material::{Dielectric, Lambertian, Metal};
 use minifb::{Window, WindowOptions};
 use std::env;

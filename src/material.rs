@@ -69,7 +69,7 @@ pub struct Dielectric {
 }
 
 impl Material for Dielectric {
-    fn scatter(self: &Self, ray: &Ray, hit_record: &HitRecord, rng: &mut ThreadRng) -> Scatter {
+    fn scatter(self: &Self, ray: &Ray, hit_record: &HitRecord, _: &mut ThreadRng) -> Scatter {
         let attenuation = vec3(1.0, 1.0, 1.0);
         let refraction_ratio = if hit_record.front_face {
             1.0 / self.refractive_index

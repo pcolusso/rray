@@ -1,7 +1,7 @@
 use crate::material::Material;
 use crate::ray::Ray;
 
-use glm::{vec3, Vec3};
+use glm::Vec3;
 use std::sync::Arc;
 
 pub trait Hitable {
