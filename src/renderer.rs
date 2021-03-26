@@ -1,10 +1,10 @@
 use crate::camera::Camera;
-use crate::ray::Ray;
 use crate::hitable::{Hitable, HitableList};
-use glm::{Vec3, vec3};
+use crate::ray::Ray;
+use glm::{vec3, Vec3};
+use indicatif::{ParallelProgressIterator, ProgressBar, ProgressStyle};
 use rand::prelude::*;
 use rayon::prelude::*;
-use indicatif::{ParallelProgressIterator, ProgressBar, ProgressStyle};
 
 #[cfg(debug_assertions)]
 const NUM_SAMPLES: u32 = 64;
@@ -24,7 +24,9 @@ pub fn random_in_unit_sphere(rng: &mut ThreadRng) -> Vec3 {
     let mut v;
     loop {
         v = 2.0 * vec3(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>()) - vec3(1.0, 1.0, 1.0);
-        if !(vec_squared_length(&v) >= 1.0) { break; }
+        if !(vec_squared_length(&v) >= 1.0) {
+            break;
+        }
     }
     v
 }
@@ -33,7 +35,9 @@ pub fn colour<T: Hitable>(ray: &Ray, world: &T, rng: &mut ThreadRng, depth: u32)
     if let Some(rec) = world.hit(ray, 0.001, f32::MAX) {
         if depth < MAX_DEPTH {
             let scattered = rec.material.scatter(&ray, &rec, rng);
-            scattered.atten.component_mul(&colour(&scattered.ray, world, rng, depth + 1))
+            scattered
+                .atten
+                .component_mul(&colour(&scattered.ray, world, rng, depth + 1))
         } else {
             vec3(0.0, 0.0, 0.0)
         }
@@ -59,7 +63,7 @@ pub fn render(width: usize, height: usize, camera: Camera, world: HitableList) -
         .progress_with(pb)
         .map_init(
             || thread_rng(),
-            | mut rng, screen_pos | {
+            |mut rng, screen_pos| {
                 let mut c = vec3(0.0, 0.0, 0.0);
                 let i = height - 1 - screen_pos / width;
                 let j = screen_pos % width;
@@ -75,6 +79,7 @@ pub fn render(width: usize, height: usize, camera: Camera, world: HitableList) -
                 let ib = (255.99 * c.z.sqrt()) as u32;
 
                 to_bgra(ir, ig, ib)
-            }
-        ).collect()
+            },
+        )
+        .collect()
 }

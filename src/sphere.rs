@@ -1,13 +1,13 @@
+use crate::hitable::{HitRecord, Hitable};
+use crate::material::Material;
+use crate::ray::Ray;
 use glm::Vec3;
 use std::sync::Arc;
-use crate::ray::Ray;
-use crate::hitable::{Hitable, HitRecord};
-use crate::material::Material;
 
 pub struct Sphere {
     pub centre: Vec3,
     pub radius: f32,
-    pub material: Arc<dyn Material + Sync + Send>
+    pub material: Arc<dyn Material + Sync + Send>,
 }
 
 impl Hitable for Sphere {
@@ -17,7 +17,7 @@ impl Hitable for Sphere {
         let b = glm::dot(&oc, &ray.direction);
         let c = glm::dot(&oc, &oc) - self.radius * self.radius;
         let d = b * b - a * c;
-        
+
         if d > 0.0 {
             let temp = (-b - (b * b - a * c).sqrt()) / a;
             if temp < t_max && temp > t_min {
@@ -26,7 +26,7 @@ impl Hitable for Sphere {
                 let outward_normal = (hit_point - self.centre) / self.radius;
                 let mut rec = HitRecord::new(temp, hit_point, normal, self.material.clone());
                 rec.set_face_normal(ray, &outward_normal);
-                return Some(rec)
+                return Some(rec);
             }
             let temp = (-b + (b * b - a * c).sqrt()) / a;
             if temp < t_max && temp > t_min {
@@ -35,7 +35,7 @@ impl Hitable for Sphere {
                 let mut rec = HitRecord::new(temp, hit_point, normal, self.material.clone());
                 let outward_normal = (hit_point - self.centre) / self.radius;
                 rec.set_face_normal(ray, &outward_normal);
-                return Some(rec)
+                return Some(rec);
             }
         }
         None

@@ -1,5 +1,5 @@
-use crate::ray::Ray;
 use crate::material::Material;
+use crate::ray::Ray;
 
 use glm::{vec3, Vec3};
 use std::sync::Arc;
@@ -13,18 +13,33 @@ pub struct HitRecord {
     pub position: Vec3,
     pub normal: Vec3,
     pub material: Arc<dyn Material + Sync>,
-    pub front_face: bool
+    pub front_face: bool,
 }
 
 impl HitRecord {
-    pub fn new(time: f32, position: Vec3, normal: Vec3, material: Arc<dyn Material + Sync>) -> Self {
+    pub fn new(
+        time: f32,
+        position: Vec3,
+        normal: Vec3,
+        material: Arc<dyn Material + Sync>,
+    ) -> Self {
         let front_face = false;
-        Self { time, position, normal, material, front_face }
+        Self {
+            time,
+            position,
+            normal,
+            material,
+            front_face,
+        }
     }
 
     pub fn set_face_normal(&mut self, ray: &Ray, outward_normal: &Vec3) {
         self.front_face = glm::dot(&ray.direction, outward_normal) < 0.0;
-        self.normal = if self.front_face { outward_normal.clone() } else { -outward_normal };
+        self.normal = if self.front_face {
+            outward_normal.clone()
+        } else {
+            -outward_normal
+        };
     }
 }
 
@@ -38,7 +53,7 @@ impl Hitable for HitableList {
         let mut closest_so_far = t_max;
         let mut temp_rec = None;
         for h in self.list.iter() {
-            if let Some(rec)= h.hit(ray, t_min, closest_so_far) {
+            if let Some(rec) = h.hit(ray, t_min, closest_so_far) {
                 hit = true;
                 closest_so_far = rec.time;
                 temp_rec = Some(rec);
@@ -50,6 +65,4 @@ impl Hitable for HitableList {
             None
         }
     }
-
-    
 }
