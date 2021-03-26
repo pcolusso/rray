@@ -57,40 +57,39 @@ fn main() -> Result<()> {
             Box::new(Sphere {
                 centre: vec3(0.0, 0.0, -1.0),
                 radius: 0.5,
-                material: Arc::new(Lambertian {
-                    albedo: vec3(0.8, 0.3, 0.3),
+                material: Arc::new(Dielectric {
+                    refractive_index: 1.5,
                 }),
             }),
             Box::new(Sphere {
                 centre: vec3(1.0, 0.0, -1.0),
                 radius: 0.5,
                 material: Arc::new(Metal {
-                    albedo: vec3(0.9, 0.9, 0.9),
-                    fuzz: 0.01,
+                    albedo: vec3(0.8, 0.6, 0.2),
+                    fuzz: 1.0,
                 }),
             }),
             Box::new(Sphere {
                 centre: vec3(-1.0, 0.0, -1.0),
                 radius: 0.5,
-                material: Arc::new(Metal {
-                    albedo: vec3(0.3, 0.3, 0.8),
-                    fuzz: 1.0,
-                }),
-            }),
-            Box::new(Sphere {
-                centre: vec3(-1.0, -0.35, -0.4),
-                radius: 0.15,
                 material: Arc::new(Dielectric {
                     refractive_index: 1.5,
                 }),
             }),
-            Box::new(Sphere {
-                centre: vec3(1.0, -0.35, -0.4),
-                radius: -0.15,
-                material: Arc::new(Dielectric {
-                    refractive_index: 0.5,
-                }),
-            }),
+            // Box::new(Sphere {
+            //     centre: vec3(-1.0, -0.35, -0.4),
+            //     radius: 0.15,
+            //     material: Arc::new(Dielectric {
+            //         refractive_index: 1.5,
+            //     }),
+            // }),
+            // Box::new(Sphere {
+            //     centre: vec3(1.0, -0.35, -0.4),
+            //     radius: -0.15,
+            //     material: Arc::new(Dielectric {
+            //         refractive_index: 0.5,
+            //     }),
+            // }),
         ],
     };
 

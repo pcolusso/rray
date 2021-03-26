@@ -32,7 +32,7 @@ pub fn colour<T: Hitable>(ray: &Ray, world: &T, rng: &mut ThreadRng, depth: u32)
         if depth < MAX_DEPTH {
             let scattered = rec.material.scatter(&ray, &rec, rng);
             scattered
-                .atten
+                .attenuation
                 .component_mul(&colour(&scattered.ray, world, rng, depth + 1))
         } else {
             vec3(0.0, 0.0, 0.0)

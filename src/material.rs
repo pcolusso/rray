@@ -6,7 +6,7 @@ use rand::prelude::*;
 
 pub struct Scatter {
     pub ray: Ray,
-    pub atten: Vec3,
+    pub attenuation: Vec3,
 }
 
 pub trait Material {
@@ -27,7 +27,7 @@ impl Material for Lambertian {
         };
         Scatter {
             ray: scattered,
-            atten: self.albedo,
+            attenuation: self.albedo,
         }
     }
 }
@@ -47,7 +47,7 @@ impl Material for Metal {
         };
         Scatter {
             ray: scattered,
-            atten: attenuation,
+            attenuation,
         }
     }
 }
@@ -57,7 +57,7 @@ pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
 }
 
 fn refract(uv: Vec3, n: Vec3, etai_over_etat: f32) -> Vec3 {
-    let x = glm::dot(&-uv, &n);
+    let x = glm::dot(&uv, &n);
     let cos_theta = if x < 1.0 { x } else { 1.0 };
     let r_out_perp = etai_over_etat * (uv - cos_theta * n);
     let r_out_para = -(1.0 - glm::length2(&r_out_perp).abs()).sqrt() * n;
@@ -77,13 +77,14 @@ impl Material for Dielectric {
             self.refractive_index
         };
         let unit_direction = ray.direction.normalize();
+        trace!("UD: {:?}", unit_direction);
         let refracted = refract(unit_direction, hit_record.normal, refraction_ratio);
         Scatter {
             ray: Ray {
                 origin: hit_record.position,
                 direction: refracted,
             },
-            atten: attenuation,
+            attenuation,
         }
     }
 }

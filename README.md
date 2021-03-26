@@ -1,1 +1,1 @@
-https://raytracing.github.io/books/RayTracingInOneWeekend.html#outputanimage
+https://raytracing.github.io/books/RayTracingInOneWeekend.html#dielectrics
