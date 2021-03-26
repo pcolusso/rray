@@ -57,7 +57,7 @@ pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
 }
 
 fn refract(uv: Vec3, n: Vec3, etai_over_etat: f32) -> Vec3 {
-    let cos_theta = glm::dot(&uv, &n).min(1.0);
+    let cos_theta = f32::min(glm::dot(&uv, &n), 1.0); // uv should also be negative here, but we get a black unescaping void.
     let r_out_perp = etai_over_etat * (uv - cos_theta * n);
     let r_out_para = -(1.0 - glm::length2(&r_out_perp).abs()).sqrt() * n;
     r_out_perp + r_out_para
@@ -78,14 +78,14 @@ impl Material for Dielectric {
         let refraction_ratio = if hit_record.front_face {
             1.0 / self.refractive_index
         } else {
+            debug!("NOT FRONT FACE!"); // Here is the main issue I believe, we never hit this code.
             self.refractive_index
         };
         let unit_direction = ray.direction.normalize();
-        let cos_theta = glm::dot(&-unit_direction, &hit_record.normal).min(1.0);
+        let cos_theta = f32::min(glm::dot(&unit_direction, &hit_record.normal), 1.0); // This is supposed to be negative unit_direction...
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
         let cannot_refract = refraction_ratio * sin_theta > 1.0;
-        let schlick = reflectance(cos_theta, self.refractive_index) > rng.gen::<f32>();
-        let direction = if cannot_refract || schlick {
+        let direction = if cannot_refract || reflectance(cos_theta, refraction_ratio) > rng.gen::<f32>() {
             reflect(unit_direction, hit_record.normal)
         } else {
             refract(unit_direction, hit_record.normal, refraction_ratio)

@@ -23,7 +23,7 @@ use crate::sphere::Sphere;
 
 fn main() -> Result<()> {
     if env::var("RUST_LOG").is_err() {
-        env::set_var("RUST_LOG", "info")
+        env::set_var("RUST_LOG", "trace")
     }
     pretty_env_logger::init();
 
@@ -32,7 +32,7 @@ fn main() -> Result<()> {
     let height = (width as f32 / aspect_ratio).floor() as usize;
     let viewport_height = 2.0;
     let viewport_width = aspect_ratio * viewport_height;
-    let focal_length = 0.5;
+    let focal_length = 1.0;
 
     let origin = vec3(0.0, 0.0, 0.0);
     let horizontal = vec3(viewport_width, 0.0, 0.0);
@@ -73,7 +73,7 @@ fn main() -> Result<()> {
             // Left
             Box::new(Sphere {
                 centre: vec3(-1.0, 0.0, -1.0),
-                radius: 0.5,
+                radius: 0.4,
                 material: Arc::new(Dielectric {
                     refractive_index: 1.5,
                 }),

@@ -23,7 +23,7 @@ impl HitRecord {
         normal: Vec3,
         material: Arc<dyn Material + Sync>,
     ) -> Self {
-        let front_face = false;
+        let front_face= true;
         Self {
             time,
             position,
@@ -38,7 +38,7 @@ impl HitRecord {
         self.normal = if self.front_face {
             outward_normal.clone()
         } else {
-            -outward_normal
+            -outward_normal.clone()
         };
     }
 }
