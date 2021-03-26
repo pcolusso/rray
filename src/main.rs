@@ -47,6 +47,7 @@ fn main() -> Result<()> {
 
     let world = HitableList {
         list: vec![
+            // Floor
             Box::new(Sphere {
                 centre: vec3(0.0, -100.5, -1.0),
                 radius: 100.0,
@@ -54,13 +55,13 @@ fn main() -> Result<()> {
                     albedo: vec3(0.8, 0.8, 0.0),
                 }),
             }),
+            // Middle
             Box::new(Sphere {
                 centre: vec3(0.0, 0.0, -1.0),
                 radius: 0.5,
-                material: Arc::new(Dielectric {
-                    refractive_index: 1.5,
-                }),
+                material: Arc::new(Lambertian { albedo: vec3(0.1, 0.2, 0.5) }),
             }),
+            // Right
             Box::new(Sphere {
                 centre: vec3(1.0, 0.0, -1.0),
                 radius: 0.5,
@@ -69,6 +70,7 @@ fn main() -> Result<()> {
                     fuzz: 1.0,
                 }),
             }),
+            // Left
             Box::new(Sphere {
                 centre: vec3(-1.0, 0.0, -1.0),
                 radius: 0.5,
