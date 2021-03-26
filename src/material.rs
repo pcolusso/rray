@@ -63,12 +63,17 @@ fn refract(uv: Vec3, n: Vec3, etai_over_etat: f32) -> Vec3 {
     r_out_perp + r_out_para
 }
 
+fn reflectance(cosine: f32, refractive_index: f32) -> f32{
+    let r0 = ((1.0 - refractive_index) / (1.0 + refractive_index)).powi(2);
+    r0 + (1.0 - r0) * (1.0 - cosine).powi(5)
+}
+
 pub struct Dielectric {
     pub refractive_index: f32,
 }
 
 impl Material for Dielectric {
-    fn scatter(self: &Self, ray: &Ray, hit_record: &HitRecord, _: &mut ThreadRng) -> Scatter {
+    fn scatter(self: &Self, ray: &Ray, hit_record: &HitRecord, rng: &mut ThreadRng) -> Scatter {
         let attenuation = vec3(1.0, 1.0, 1.0);
         let refraction_ratio = if hit_record.front_face {
             1.0 / self.refractive_index
@@ -79,7 +84,8 @@ impl Material for Dielectric {
         let cos_theta = glm::dot(&-unit_direction, &hit_record.normal).min(1.0);
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
         let cannot_refract = refraction_ratio * sin_theta > 1.0;
-        let direction = if cannot_refract {
+        let schlick = reflectance(cos_theta, self.refractive_index) > rng.gen::<f32>();
+        let direction = if cannot_refract || schlick {
             reflect(unit_direction, hit_record.normal)
         } else {
             refract(unit_direction, hit_record.normal, refraction_ratio)
