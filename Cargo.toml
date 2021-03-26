@@ -14,6 +14,7 @@ nalgebra-glm = "0.11"
 pretty_env_logger = "0.4.0"
 rayon = "1.5.0"
 rand = "0.8.3"
+indicatif = { version = "0.15.0", features = ["rayon"] }
 
 # Set the default for dependencies.
 [profile.dev.package."*"]

@@ -4,6 +4,7 @@ use crate::hitable::{Hitable, HitableList};
 use glm::{Vec3, vec3};
 use rand::prelude::*;
 use rayon::prelude::*;
+use indicatif::{ParallelProgressIterator, ProgressBar, ProgressStyle};
 
 #[cfg(debug_assertions)]
 const NUM_SAMPLES: u32 = 64;
@@ -48,8 +49,14 @@ fn to_bgra(r: u32, g: u32, b: u32) -> u32 {
 }
 
 pub fn render(width: usize, height: usize, camera: Camera, world: HitableList) -> Vec<u32> {
+    let pb = ProgressBar::new((width * height) as u64);
+    pb.set_style(ProgressStyle::default_bar()
+        .template("{spinner:.green} [{elapsed_precise}, {percent}%] [{bar:40.cyan/blue}] {count}/{total_count} eta: {eta}, {per_sec} pixels/sec")
+        .progress_chars("#>-"));
+
     (0..width * height)
         .into_par_iter()
+        .progress_with(pb)
         .map_init(
             || thread_rng(),
             | mut rng, screen_pos | {
