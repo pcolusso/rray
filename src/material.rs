@@ -78,7 +78,7 @@ impl Material for Dielectric {
         let refraction_ratio = if hit_record.front_face {
             1.0 / self.refractive_index
         } else {
-            debug!("NOT FRONT FACE!"); // Here is the main issue I believe, we never hit this code.
+            // Here is the main issue I believe, we never hit this code.
             self.refractive_index
         };
         let unit_direction = ray.direction.normalize();
