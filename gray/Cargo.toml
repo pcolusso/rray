@@ -11,7 +11,7 @@ image = "0.23.14"
 winit = "0.24.0"
 nalgebra-glm = "0.11.0"
 pretty_env_logger = "0.4.0"
-wgpu = "0.7.0"
+wgpu = "0.7.1"
 log = "0.4.14"
 futures = "0.3.13"
 bytemuck = { version = "1.4", features = [ "derive" ] }

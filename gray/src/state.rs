@@ -41,7 +41,7 @@ impl State {
     pub async fn new(window: &Window) -> Self {
         let size = window.inner_size();
 
-        let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
+        let instance = wgpu::Instance::new(wgpu::BackendBit::DX12);
         let surface = unsafe { instance.create_surface(window) };
         let adapter = instance.request_adapter(&wgpu::RequestAdapterOptions {
             power_preference: wgpu::PowerPreference::default(),
@@ -65,7 +65,7 @@ impl State {
             present_mode: wgpu::PresentMode::Fifo,
         };
 
-        let camera = Camera::new(vec3(-2.0, 2.0, 1.0), vec3(0.0,0.0, -1.0), vec3(0.0, 1.0, 0.0), 20.0, 16.0 / 9.0);
+        let camera = Camera::new(vec3(0.0, 0.0, 5.0), vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), 45.0, 16.0 / 9.0, 16.0, 1.0);
         let mut uniforms = Uniforms::new();
         uniforms.update_camera(&camera);
         let uniform_buffer = device.create_buffer_init(
