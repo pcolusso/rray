@@ -2,6 +2,8 @@
 
 mod state;
 mod vertex;
+mod camera;
+mod uniform;
 
 use crate::state::State;
 

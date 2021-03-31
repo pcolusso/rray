@@ -1,7 +1,11 @@
 use wgpu::util::DeviceExt;
 use winit::window::{Window};
 use winit::event::*;
+use nalgebra_glm::vec3;
+
 use crate::vertex::Vertex;
+use crate::camera::Camera;
+use crate::uniform::Uniforms;
 
 const VERTICES: &[Vertex] = &[
     Vertex::new(-1.0, 1.0),
@@ -27,6 +31,10 @@ pub struct State {
     vertex_buffer: wgpu::Buffer,
     index_buffer: wgpu::Buffer,
     num_indices: u32,
+    camera: Camera,
+    uniforms: Uniforms,
+    uniform_buffer: wgpu::Buffer,
+    uniform_bind_group: wgpu::BindGroup
 }
 
 impl State {
@@ -56,13 +64,51 @@ impl State {
             height: size.height,
             present_mode: wgpu::PresentMode::Fifo,
         };
+
+        let camera = Camera::new(vec3(-2.0, 2.0, 1.0), vec3(0.0,0.0, -1.0), vec3(0.0, 1.0, 0.0), 20.0, 16.0 / 9.0);
+        let mut uniforms = Uniforms::new();
+        uniforms.update_camera(&camera);
+        let uniform_buffer = device.create_buffer_init(
+            &wgpu::util::BufferInitDescriptor {
+                label: Some("Uniform Buffer"),
+                contents: bytemuck::cast_slice(&[uniforms]),
+                usage: wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,
+            }
+        );
+        let uniform_bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            entries: &[
+                wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStage::FRAGMENT,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Uniform,
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                    },
+                    count: None,
+                }
+            ],
+            label: Some("uniform_bind_group_layout"),
+        });
+        let uniform_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            layout: &uniform_bind_group_layout,
+            entries: &[
+                wgpu::BindGroupEntry {
+                    binding: 0,
+                    resource: uniform_buffer.as_entire_binding(),
+                }
+            ],
+            label: Some("uniform_bind_group"),
+        });
         
         let vs_module = device.create_shader_module(&wgpu::include_spirv!("shader.vert.spv"));
         let fs_module = device.create_shader_module(&wgpu::include_spirv!("shader.frag.spv"));
 
         let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("Render Pipeline Layout"),
-            bind_group_layouts: &[],
+            bind_group_layouts: &[
+                &uniform_bind_group_layout
+            ],
             push_constant_ranges: &[]
         });
 
@@ -120,7 +166,7 @@ impl State {
 
         let num_indices = INDICES.len() as u32;
 
-        Self { surface, device, queue, sc_desc, swap_chain, size, clear_colour, render_pipeline, vertex_buffer, index_buffer, num_indices }
+        Self { surface, device, queue, sc_desc, swap_chain, size, clear_colour, render_pipeline, vertex_buffer, index_buffer, num_indices, camera, uniforms, uniform_buffer, uniform_bind_group }
     }
 
     pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
@@ -141,7 +187,9 @@ impl State {
     }
 
     pub fn update(&mut self) {
-
+        self.uniforms.update_camera(&self.camera);
+        self.uniforms.update_window_size(&self.size.width, &self.size.height);
+        self.queue.write_buffer(&self.uniform_buffer, 0, bytemuck::cast_slice(&[self.uniforms]));
     }
 
     pub fn render(&mut self) -> Result<(), wgpu::SwapChainError> {
@@ -169,6 +217,7 @@ impl State {
 
             render_pass.set_pipeline(&self.render_pipeline);
             render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
+            render_pass.set_bind_group(0, &self.uniform_bind_group, &[]);
             render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
             render_pass.draw_indexed(0 .. self.num_indices, 0, 0..1);
         }

@@ -1,19 +1,19 @@
 #version 450
 
-layout(location=0) in vec3 out_position;
-layout(location=1) in vec2 window_size;
-layout(location=2) in float out_seed;
-layout(location=3) in vec3 out_camera_origin;
-layout(location=4) in vec3 out_camera_lower_left;
-layout(location=5) in vec3 out_camera_horizontal;
-layout(location=6) in float out_camera_lens_radius;
+layout(set=0, binding=0) // 1.
+uniform Uniforms {
+    uvec2  window_size;
+    float  seed;
+    float  camera_lens_radius;
+    vec3   camera_origin;
+    vec3   u_camera_lower_left;
+    vec3   camera_horizontal;
+    vec3   camera_vertical;
+};
 
 layout(location=0) out vec4 f_color;
 
 #define M_PI 3.1415926535897932384626433832795
-
-//const vec2 window_size = vec2(640.0, 480.0);
-const float random_seed = 43.0;
 
 /* camera attributes are provided by application */
 const float aspect_ratio = 16.0 / 9.0;
@@ -26,13 +26,11 @@ const float focal_length = 1.0;
 const vec3 origin = vec3(0, 0, 0);
 const vec3 horizontal = vec3(viewport_width, 0, 0);
 const vec3 vertical = vec3(0, viewport_height, 0);
-const vec3 lower_left_corner = origin - horizontal/2.0 - vertical/2.0 - vec3(0, 0, focal_length);
+const vec3 lower_left = origin - horizontal/2.0 - vertical/2.0 - vec3(0, 0, focal_length);
 
-const vec3 camera_origin = origin;
-const vec3 camera_lower_left_corner = lower_left_corner;
-const vec3 camera_horizontal = vec3(0, 1, 0);
-const vec3 camera_vertical = vec3(1, 0, 0);
-const float camera_lens_radius = 0.3;
+const vec3 camera_lower_left = lower_left;
+//const vec3 camera_horizontal = vec3(0, 1, 0);
+//const vec3 camera_vertical = vec3(1, 0, 0);
 
 struct Ray {
   vec3 origin;
@@ -69,15 +67,24 @@ struct Sphere {
   Material mat;
 };
 
-Material gray_metal = Material(vec3(0.8, 0.8, 0.8), 0.0001, 0.0, mat_metal);
-Material gold_metal = Material(vec3(0.8, 0.6, 0.2), 0.0001, 0.0, mat_metal);
-Material dielectric = Material(vec3(0),                0.0, 1.5, mat_dielectric);
-Material lambert    = Material(vec3(0.8, 0.8, 0.0),    0.0, 0.0, mat_lambert);
+const Material ground_mat = Material(vec3(0.8, 0.8, 0), 0, 0, mat_lambert);
+const Material centre_mat = Material(vec3(0.1, 0.2, 0.5), 0, 0, mat_lambert);
+const Material left_mat = Material(vec3(0, 0, 0), 0, 1.5, mat_dielectric);
+const Material right_mat = Material(vec3(0.8, 0.6, 0.2), 0, 0, mat_metal);
 
-const Sphere sphere1 = Sphere(vec3(1,0,-1), 0.5, Material(vec3(0.8, 0.8, 0.8), 0.0001, 0.0, mat_metal));
-const Sphere sphere2 = Sphere(vec3(-1,0,-1), 0.5, Material(vec3(0.8, 0.6, 0.2), 0.0001, 0.0, mat_metal));
+const Material gray_metal = Material(vec3(0.8, 0.8, 0.8), 0.0001, 0.0, mat_metal);
+const Material gold_metal = Material(vec3(0.8, 0.6, 0.2), 0.0001, 0.0, mat_metal);
+const Material dielectric = Material(vec3(0),                0.0, 1.5, mat_dielectric);
+const Material lambert = Material(vec3(0.8, 0.8, 0.0),    0.0, 0.0, mat_lambert);
 
-Sphere world[] = Sphere[](sphere1, sphere2);
+const Sphere ground =  Sphere(vec3(0, -100, -1), 100, ground_mat);
+const Sphere centre = Sphere(vec3(0,0,0), 0.5, lambert);
+const Sphere left = Sphere(vec3(-1, 0, -1), 0.5, left_mat);
+const Sphere right = Sphere(vec3(1, 0, -1), 0.5, right_mat);
+//const Sphere sphere1 = Sphere(vec3(1,0,-1), 0.5, Material(vec3(0.8, 0.8, 0.8), 0.0001, 0.0, mat_metal));
+//const Sphere sphere2 = Sphere(vec3(-1,0,-1), 0.5, Material(vec3(0.8, 0.6, 0.2), 0.0001, 0.0, mat_metal));
+
+Sphere world[] = Sphere[](ground, left, centre, right);
 
 /* returns a varying number between 0 and 1 */
 float drand48(vec2 co) {
@@ -187,7 +194,7 @@ bool dispatch_scatter(in Ray r, HitRecord hit, out vec3 attenuation, out Ray sca
 Ray get_ray(float s, float t) {
   vec3 rd = camera_lens_radius * random_in_unit_disk(vec2(s,t));
   vec3 offset = vec3(s * rd.x, t * rd.y, 0);
-  return Ray(camera_origin + offset, camera_lower_left_corner + s * camera_horizontal + t * camera_vertical - camera_origin - offset);
+  return Ray(camera_origin + offset, camera_lower_left + s * camera_horizontal + t * camera_vertical - camera_origin - offset);
 }
 
 vec3 point_at_parameter(Ray r,float t) {
